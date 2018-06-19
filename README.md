@@ -1,7 +1,9 @@
 Databrary mock server 
+============================
 
 Using Swagger Express Middleware
-============================
+--------------------------
+
 #### Swagger middleware and mocks for Express.js
 
 [![Build Status](https://api.travis-ci.org/BigstickCarpet/swagger-express-middleware.svg)](https://travis-ci.org/BigstickCarpet/swagger-express-middleware)
