@@ -39,7 +39,13 @@ definitions:
         type: boolean
       publicaccess:
         type: string
-
+    
+  asset:
+    required:
+      - id
+    properties:
+      id:
+        type: integer
 
 parameters:
   id:
@@ -47,6 +53,24 @@ parameters:
     in: path
     description: ID of the volume
     required: true
+    type: string
+  slotid:
+    name: slotid
+    in: path
+    description: ID of the slot
+    required: false
+    type: string
+  slotrange:
+    name: slotrange
+    in: path
+    description: Range of the slot
+    required: false
+    type: string
+  assetid:
+    name: assetid
+    in: path
+    description: ID of the asset
+    required: false
     type: string
 
 paths:
@@ -56,17 +80,29 @@ paths:
       - $ref: "#/parameters/id"
 
     get:
-      description: Returns a pet by name
-      operationId: findPetByName
+      description: Returns a volume by ID
+      operationId: findVolumeById
       responses:
         default:
-          description: Returns the pet data
+          description: Returns the volume data
           schema:
             $ref: "#/definitions/volume"
-          headers:
-            last-modified:
-              type: string
-              description: The date/time that the pet was last modified
+
+  /api/volume/{id}/slot/{slotid}/{slotrange}/asset/{assetid}:
+    parameters:
+      - $ref: "#/parameters/id"
+      - $ref: "#/parameters/slotid"
+      - $ref: "#/parameters/slotrange"
+      - $ref: "#/parameters/assetid"
+
+    get:
+      description: Returns an asset by ID
+      operationId: findAssetById
+      responses:
+        default:
+          description: Returns the asset data
+          schema:
+            $ref: "#/definitions/asset"
 
   /:
     get:
