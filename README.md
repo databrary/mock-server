@@ -1,4 +1,5 @@
-Swagger Express Middleware
+Databrary mock server 
+Using Swagger Express Middleware
 ============================
 #### Swagger middleware and mocks for Express.js
 
