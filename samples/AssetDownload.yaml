@@ -1,0 +1,81 @@
+swagger: "2.0"
+info:
+  version: 1.0.0
+  title: Asset Download Page
+  description: Asset Download Page APIs
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+definitions:
+  volume:
+    required:
+      - id
+    properties:
+      id:
+        type: integer
+      alias:
+        type: string
+      body:
+        type: string
+      creation:
+        type: string
+      doi:
+        type: string
+      name:
+        type: string
+      owners:
+        type: array
+        items:
+          name:
+            type: string
+          id:
+            type: integer
+      permission:
+        type: integer
+      publicsharefull:
+        type: boolean
+      publicaccess:
+        type: string
+
+
+parameters:
+  id:
+    name: id
+    in: path
+    description: ID of the volume
+    required: true
+    type: string
+
+paths:
+  
+  /api/volume/{id}:
+    parameters:
+      - $ref: "#/parameters/id"
+
+    get:
+      description: Returns a pet by name
+      operationId: findPetByName
+      responses:
+        default:
+          description: Returns the pet data
+          schema:
+            $ref: "#/definitions/volume"
+          headers:
+            last-modified:
+              type: string
+              description: The date/time that the pet was last modified
+
+  /:
+    get:
+      produces:
+        - text/html
+      responses:
+        default:
+          description: Asset Download
+          schema:
+            type: file
+            default:
+              $ref: "asset-download.html"
