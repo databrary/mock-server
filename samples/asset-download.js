@@ -66,76 +66,146 @@ var volume = {
   required: ['id', 'name', 'alias', 'body', 'creation', 'doi', 'owners', 'permission', 'publicsharefull', 'publicaccess']
 };
 
-jsf.resolve(volume).then(function(sample) {
-  middleware.init(path.join(__dirname, 'AssetDownload.yaml'), function(err) {
-    // Create a custom data store with some initial mock data
-    var myDB = new MemoryDataStore();
+var video = {
+  type: 'object',
+  properties: {
+    permission: {
+      type: 'integer'
+    },
+    asset: {
+      $ref: '#/definitions/asset'
+    },
+    container: {
+      $ref: '#/definitions/container'
+    },
+    segment: {
+      type: 'array',
+      items: {
+        type: 'integer'
+      }
+    }
+  },
+  required: ['permission', 'asset', 'container', 'segment'],
+  definitions: {
+    asset: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'integer'
+        },
+        classification: {
+          type: 'integer'
+        },
+        format: {
+          type: 'integer'
+        },
+        name: {
+          type: 'string'
+        },
+        permission: {
+          type: 'integer'
+        },
+        segment: {
+          type: 'array',
+          items: {
+            type: 'integer'
+          }
+        }
+      },
+      required: ['id', 'classification', 'format', 'name', 'permission', 'segment']
+    },
+    container: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'integer'
+        },
+        name: {
+          type: 'string'
+        },
+        top: {
+          type: 'boolean'
+        },
+      },
+      required: ['id', 'name', 'top']
+    }
+  }
+};
+
+middleware.init(path.join(__dirname, 'AssetDownload.yaml'), function(err) {
+  // Create a custom data store with some initial mock data
+  var myDB = new MemoryDataStore();
+
+  jsf.resolve(volume).then(function(sample) {
     myDB.save(
       new Resource('/api/volume/1', sample),
-      new Resource('/api/volume/1/slot/4/0,40000/asset/1', {"segment":[0,40000],"permission":5,"container":{"id":4,"top":true,"name":"Top-level materials"},"asset":{"id":1,"format":-800,"classification":3,"duration":40000,"segment":[0,40000],"name":"counting","permission":5}})
     );
-
-    // Enable Express' case-sensitive and strict options
-    // (so "/pets/Fido", "/pets/fido", and "/pets/fido/" are all different)
-    app.enable('case sensitive routing');
-    app.enable('strict routing');
-
-    app.use(middleware.metadata());
-    app.use(middleware.files(
-      {
-        // Override the Express App's case-sensitive and strict-routing settings
-        // for the Files middleware.
-        caseSensitive: false,
-        strict: false
-      },
-      {
-        // Serve the Swagger API from "/swagger/api" instead of "/api-docs"
-        apiPath: '/swagger/api',
-
-        // Disable serving the "PetStore.yaml" file
-        rawFilesPath: false
-      }
-    ));
-
-    app.use(middleware.parseRequest(
-      {
-        // Configure the cookie parser to use secure cookies
-        cookie: {
-          secret: 'MySuperSecureSecretKey'
-        },
-
-        // Don't allow JSON content over 100kb (default is 1mb)
-        json: {
-          limit: '100kb'
-        },
-
-        // Change the location for uploaded pet photos (default is the system's temp directory)
-        multipart: {
-          dest: path.join(__dirname, 'photos')
-        }
-      }
-    ));
-
-    // These two middleware don't have any options (yet)
-    app.use(
-      middleware.CORS(),
-      middleware.validateRequest()
+  });
+  jsf.resolve(video).then(function(sample) {
+    myDB.save(
+      new Resource('/api/volume/1/slot/4/0,40000/asset/1', sample),
     );
-
-    // The mock middleware will use our custom data store,
-    // which we already pre-populated with mock data
-    app.use(middleware.mock(myDB));
-
-    // Add a custom error handler that returns errors as HTML
-    app.use(function(err, req, res, next) {
-      res.status(err.status);
-      res.type('html');
-      res.send(util.format('<html><body><h1>%d Error!</h1><p>%s</p></body></html>', err.status, err.message));
-    });
-
-    app.listen(9000, function() {
-      console.log('The Databrary asset download mock server is now running at http://localhost:9000');
-    });
   });
 
+  // Enable Express' case-sensitive and strict options
+  // (so "/pets/Fido", "/pets/fido", and "/pets/fido/" are all different)
+  app.enable('case sensitive routing');
+  app.enable('strict routing');
+
+  app.use(middleware.metadata());
+  app.use(middleware.files(
+    {
+      // Override the Express App's case-sensitive and strict-routing settings
+      // for the Files middleware.
+      caseSensitive: false,
+      strict: false
+    },
+    {
+      // Serve the Swagger API from "/swagger/api" instead of "/api-docs"
+      apiPath: '/swagger/api',
+
+      // Disable serving the "PetStore.yaml" file
+      rawFilesPath: false
+    }
+  ));
+
+  app.use(middleware.parseRequest(
+    {
+      // Configure the cookie parser to use secure cookies
+      cookie: {
+        secret: 'MySuperSecureSecretKey'
+      },
+
+      // Don't allow JSON content over 100kb (default is 1mb)
+      json: {
+        limit: '100kb'
+      },
+
+      // Change the location for uploaded pet photos (default is the system's temp directory)
+      multipart: {
+        dest: path.join(__dirname, 'photos')
+      }
+    }
+  ));
+
+  // These two middleware don't have any options (yet)
+  app.use(
+    middleware.CORS(),
+    middleware.validateRequest()
+  );
+
+  // The mock middleware will use our custom data store,
+  // which we already pre-populated with mock data
+  app.use(middleware.mock(myDB));
+
+  // Add a custom error handler that returns errors as HTML
+  app.use(function(err, req, res, next) {
+    res.status(err.status);
+    res.type('html');
+    res.send(util.format('<html><body><h1>%d Error!</h1><p>%s</p></body></html>', err.status, err.message));
+  });
+
+  app.listen(9000, function() {
+    console.log('The Databrary asset download mock server is now running at http://localhost:9000');
+  });
 });

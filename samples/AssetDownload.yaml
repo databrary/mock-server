@@ -41,8 +41,6 @@ definitions:
         type: string
     
   video:
-    required:
-      - id
     properties:
       asset:
         $ref: "#/definitions/asset"
