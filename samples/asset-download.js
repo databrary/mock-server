@@ -22,7 +22,8 @@ middleware.init(path.join(__dirname, 'AssetDownload.yaml'), function(err) {
   // Create a custom data store with some initial mock data
   var myDB = new MemoryDataStore();
   myDB.save(
-    new Resource('/api/volume/1', {"id":1,"name":"Databrary","body":"Databrary is an open data library for developmental science.","doi":"10.17910/B7159Q","alias":"test volume","creation":"2013-01-11T10:26:40Z","owners":[{"name":"Steiger, Lisa","id":3},{"name":"Tesla, Testarosa","id":7}],"permission":5,"publicsharefull":false,"publicaccess":"restricted"})
+    new Resource('/api/volume/1', {"id":1,"name":"Databrary","body":"Databrary is an open data library for developmental science.","doi":"10.17910/B7159Q","alias":"test volume","creation":"2013-01-11T10:26:40Z","owners":[{"name":"Steiger, Lisa","id":3},{"name":"Tesla, Testarosa","id":7}],"permission":5,"publicsharefull":false,"publicaccess":"restricted"}),
+    new Resource('/api/volume/1/slot/4/0,40000/asset/1', {"segment":[0,40000],"permission":5,"container":{"id":4,"top":true,"name":"Top-level materials"},"asset":{"id":1,"format":-800,"classification":3,"duration":40000,"segment":[0,40000],"name":"counting","permission":5}})
   );
 
   // Enable Express' case-sensitive and strict options

@@ -40,30 +40,68 @@ definitions:
       publicaccess:
         type: string
     
+  video:
+    required:
+      - id
+    properties:
+      asset:
+        $ref: "#/definitions/asset"
+      container:
+        $ref: "#/definitions/container"
+      permission:
+        type: integer
+      segment:
+        type: array
+        items:
+          type: integer
+
   asset:
     required:
       - id
     properties:
       id:
         type: integer
+      classification:
+        type: integer
+      format:
+        type: integer
+      name:
+        type: string
+      permission:
+        type: integer
+      segment:
+        type: array
+        items:
+          type: integer
+
+  container:
+    required:
+      - id
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      top:
+        type: boolean
 
 parameters:
-  id:
-    name: id
+  volumeid:
+    name: volumeid
     in: path
     description: ID of the volume
     required: true
     type: string
-  slotid:
-    name: slotid
+  containerid:
+    name: containerid
     in: path
-    description: ID of the slot
+    description: ID of the container
     required: false
     type: string
-  slotrange:
-    name: slotrange
+  segmentRange:
+    name: segmentRange
     in: path
-    description: Range of the slot
+    description: Segment range
     required: false
     type: string
   assetid:
@@ -75,9 +113,9 @@ parameters:
 
 paths:
   
-  /api/volume/{id}:
+  /api/volume/{volumeid}:
     parameters:
-      - $ref: "#/parameters/id"
+      - $ref: "#/parameters/volumeid"
 
     get:
       description: Returns a volume by ID
@@ -88,21 +126,21 @@ paths:
           schema:
             $ref: "#/definitions/volume"
 
-  /api/volume/{id}/slot/{slotid}/{slotrange}/asset/{assetid}:
+  /api/volume/{volumeid}/slot/{containerid}/{segmentRange}/asset/{assetid}:
     parameters:
-      - $ref: "#/parameters/id"
-      - $ref: "#/parameters/slotid"
-      - $ref: "#/parameters/slotrange"
+      - $ref: "#/parameters/volumeid"
+      - $ref: "#/parameters/containerid"
+      - $ref: "#/parameters/segmentRange"
       - $ref: "#/parameters/assetid"
 
     get:
-      description: Returns an asset by ID
-      operationId: findAssetById
+      description: Returns an video by ID
+      operationId: findvideoById
       responses:
         default:
-          description: Returns the asset data
+          description: Returns the video data
           schema:
-            $ref: "#/definitions/asset"
+            $ref: "#/definitions/video"
 
   /:
     get:
