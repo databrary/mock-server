@@ -18,99 +18,124 @@ var util            = require('util'),
 var app = express();
 var middleware = new Middleware(app);
 
-middleware.init(path.join(__dirname, 'AssetDownload.yaml'), function(err) {
-  // Create a custom data store with some initial mock data
-  var myDB = new MemoryDataStore();
-  myDB.save(
-    new Resource('/api/volume/1', {"id":1,"name":"Databrary","body":"Databrary is an open data library for developmental science.","doi":"10.17910/B7159Q","alias":"test volume","creation":"2013-01-11T10:26:40Z","owners":[{"name":"Steiger, Lisa","id":3},{"name":"Tesla, Testarosa","id":7}],"permission":5,"publicsharefull":false,"publicaccess":"restricted"}),
-    new Resource('/api/volume/1/slot/4/0,40000/asset/1', {"segment":[0,40000],"permission":5,"container":{"id":4,"top":true,"name":"Top-level materials"},"asset":{"id":1,"format":-800,"classification":3,"duration":40000,"segment":[0,40000],"name":"counting","permission":5}})
-  );
+//generate fake data
+var jsf = require('json-schema-faker');
 
-  // Enable Express' case-sensitive and strict options
-  // (so "/pets/Fido", "/pets/fido", and "/pets/fido/" are all different)
-  app.enable('case sensitive routing');
-  app.enable('strict routing');
-
-  app.use(middleware.metadata());
-  app.use(middleware.files(
-    {
-      // Override the Express App's case-sensitive and strict-routing settings
-      // for the Files middleware.
-      caseSensitive: false,
-      strict: false
+var volume = {
+  type: 'object',
+  properties: {
+    id: {
+      type: 'integer'
     },
-    {
-      // Serve the Swagger API from "/swagger/api" instead of "/api-docs"
-      apiPath: '/swagger/api',
-
-      // Disable serving the "PetStore.yaml" file
-      rawFilesPath: false
-    }
-  ));
-
-  app.use(middleware.parseRequest(
-    {
-      // Configure the cookie parser to use secure cookies
-      cookie: {
-        secret: 'MySuperSecureSecretKey'
-      },
-
-      // Don't allow JSON content over 100kb (default is 1mb)
-      json: {
-        limit: '100kb'
-      },
-
-      // Change the location for uploaded pet photos (default is the system's temp directory)
-      multipart: {
-        dest: path.join(__dirname, 'photos')
+    name: {
+      type: 'string'
+    },
+    alias: {
+      type: 'string'
+    },
+    body: {
+      type: 'string'
+    },
+    creation: {
+      type: 'string'
+    },
+    doi: {
+      type: 'string'
+    },
+    owners: {
+      type: 'array',
+      items: {
+        name: {
+          type: 'string'
+        },
+        id: {
+          type: 'integer'
+        }
       }
+    },
+    permission: {
+      type: 'integer'
+    },
+    publicsharefull: {
+      type: 'boolean'
+    },
+    publicaccess: {
+      type: 'string'
     }
-  ));
+  },
+  required: ['id', 'name', 'alias', 'body', 'creation', 'doi', 'owners', 'permission', 'publicsharefull', 'publicaccess']
+};
 
-  // These two middleware don't have any options (yet)
-  app.use(
-    middleware.CORS(),
-    middleware.validateRequest()
-  );
+jsf.resolve(volume).then(function(sample) {
+  middleware.init(path.join(__dirname, 'AssetDownload.yaml'), function(err) {
+    // Create a custom data store with some initial mock data
+    var myDB = new MemoryDataStore();
+    myDB.save(
+      new Resource('/api/volume/1', sample),
+      new Resource('/api/volume/1/slot/4/0,40000/asset/1', {"segment":[0,40000],"permission":5,"container":{"id":4,"top":true,"name":"Top-level materials"},"asset":{"id":1,"format":-800,"classification":3,"duration":40000,"segment":[0,40000],"name":"counting","permission":5}})
+    );
 
-  // Add custom middleware
-  // app.patch('/pets/:petName', function(req, res, next) {
-  //   if (req.body.name !== req.params.petName) {
-  //     // The pet's name has changed, so change its URL.
-  //     // Start by deleting the old resource
-  //     myDB.delete(new Resource(req.path), function(err, pet) {
-  //       if (pet) {
-  //         // Merge the new data with the old data
-  //         pet.merge(req.body);
-  //       }
-  //       else {
-  //         pet = req.body;
-  //       }
+    // Enable Express' case-sensitive and strict options
+    // (so "/pets/Fido", "/pets/fido", and "/pets/fido/" are all different)
+    app.enable('case sensitive routing');
+    app.enable('strict routing');
 
-  //       // Save the pet with the new URL
-  //       myDB.save(new Resource('/pets', req.body.name, pet), function(err, pet) {
-  //         // Send the response
-  //         res.json(pet.data);
-  //       });
-  //     });
-  //   }
-  //   else {
-  //     next();
-  //   }
-  // });
+    app.use(middleware.metadata());
+    app.use(middleware.files(
+      {
+        // Override the Express App's case-sensitive and strict-routing settings
+        // for the Files middleware.
+        caseSensitive: false,
+        strict: false
+      },
+      {
+        // Serve the Swagger API from "/swagger/api" instead of "/api-docs"
+        apiPath: '/swagger/api',
 
-  // The mock middleware will use our custom data store,
-  // which we already pre-populated with mock data
-  app.use(middleware.mock(myDB));
+        // Disable serving the "PetStore.yaml" file
+        rawFilesPath: false
+      }
+    ));
 
-  // Add a custom error handler that returns errors as HTML
-  app.use(function(err, req, res, next) {
-    res.status(err.status);
-    res.type('html');
-    res.send(util.format('<html><body><h1>%d Error!</h1><p>%s</p></body></html>', err.status, err.message));
+    app.use(middleware.parseRequest(
+      {
+        // Configure the cookie parser to use secure cookies
+        cookie: {
+          secret: 'MySuperSecureSecretKey'
+        },
+
+        // Don't allow JSON content over 100kb (default is 1mb)
+        json: {
+          limit: '100kb'
+        },
+
+        // Change the location for uploaded pet photos (default is the system's temp directory)
+        multipart: {
+          dest: path.join(__dirname, 'photos')
+        }
+      }
+    ));
+
+    // These two middleware don't have any options (yet)
+    app.use(
+      middleware.CORS(),
+      middleware.validateRequest()
+    );
+
+    // The mock middleware will use our custom data store,
+    // which we already pre-populated with mock data
+    app.use(middleware.mock(myDB));
+
+    // Add a custom error handler that returns errors as HTML
+    app.use(function(err, req, res, next) {
+      res.status(err.status);
+      res.type('html');
+      res.send(util.format('<html><body><h1>%d Error!</h1><p>%s</p></body></html>', err.status, err.message));
+    });
+
+    app.listen(9000, function() {
+      console.log('The Databrary asset download mock server is now running at http://localhost:9000');
+    });
   });
 
-  app.listen(9000, function() {
-    console.log('The Databrary asset download mock server is now running at http://localhost:9000');
-  });
 });
